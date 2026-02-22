@@ -239,7 +239,7 @@ Mitigations:
 - Run Cisco AI Defense scanner against workspace directory for deeper LLM-based analysis
 - Subagent exposure is limited: `filterBootstrapFilesForSession()` (`src/agents/workspace.ts:499-507`) restricts subagents to only AGENTS.md + TOOLS.md
 
-Source: `src/agents/workspace.ts:30-31` (file list), `src/agents/pi-embedded-helpers/bootstrap.ts:85,187-239` (injection), `src/memory/qmd-manager.ts:521-525` (QMD validation)
+Source: `src/agents/workspace.ts:30-31` (file list), `src/agents/pi-embedded-helpers/bootstrap.ts:85,187-239` (injection), `src/memory/qmd-manager.ts:620-624` (QMD validation)
 
 See: [Cisco AI Defense gap analysis](../08-security-analysis/cisco-ai-defense-skill-scanner.md#beyond-skillmd-all-persistent-md-files-are-unscanned)
 
@@ -281,7 +281,7 @@ Each agent can have its own sandbox configuration controlling:
 
 Agent-specific settings override global defaults. Resolution order: agent config -> global agent defaults -> built-in defaults.
 
-Source: `src/agents/sandbox/config.ts:145` (`resolveSandboxConfigForAgent()`)
+Source: `src/agents/sandbox/config.ts:149` (`resolveSandboxConfigForAgent()`)
 
 ### Tool policies per agent
 

@@ -990,7 +990,7 @@ Attack #21 hides instructions in **skill files** (SKILL.md) that are loaded when
 
 1. **Bootstrap files** (system prompt injection): Nine named `.md` files (AGENTS.md, SOUL.md, TOOLS.md, IDENTITY.md, USER.md, HEARTBEAT.md, BOOTSTRAP.md, MEMORY.md, memory.md) are loaded by `loadWorkspaceBootstrapFiles()` (`src/agents/workspace.ts:441-495`) and injected into the system prompt via `buildBootstrapContextFiles()` (`src/agents/pi-embedded-helpers/bootstrap.ts:187-239`) at up to 20,000 characters each. **Total unscanned attack surface: 180,000 characters of trusted system context.**
 
-2. **Memory directory files** (`memory/*.md`): Accessed via `memory_search`/`memory_get` tool calls with a 4,000-character injection budget. Goes through a separate pipeline (`src/memory/internal.ts:78-107`, `src/memory/backend-config.ts:235-254`) — not injected into the system prompt. QMD backend validates `.md` extension and rejects symlinks (`src/memory/qmd-manager.ts:521-525`) but does not scan content.
+2. **Memory directory files** (`memory/*.md`): Accessed via `memory_search`/`memory_get` tool calls with a 4,000-character injection budget. Goes through a separate pipeline (`src/memory/internal.ts:78-107`, `src/memory/backend-config.ts:275`) — not injected into the system prompt. QMD backend validates `.md` extension and rejects symlinks (`src/memory/qmd-manager.ts:620-624`) but does not scan content.
 
 **Scenario 1 — Malicious skill writes to MEMORY.md:**
 
@@ -1096,7 +1096,7 @@ The gateway tool's `config.patch` action uses a **separate control plane** from 
 
 So this still works even when `/config set` is disabled (`commands.config: false` + `configWrites: false`) if the gateway tool remains available to that owner session.
 
-**Source:** `src/agents/tools/gateway-tool.ts:72,188-199`, `src/agents/tools/gateway.ts:113-125`, `src/gateway/server-methods.ts:38-67,107-131`, `src/auto-reply/reply/commands-config.ts:39,54-72`
+**Source:** `src/agents/tools/gateway-tool.ts:72,188-199`, `src/agents/tools/gateway.ts:113-125`, `src/gateway/server-methods.ts:35-62,102-127`, `src/auto-reply/reply/commands-config.ts:39,54-72`
 
 **Defense:**
 

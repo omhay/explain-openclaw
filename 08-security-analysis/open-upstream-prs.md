@@ -220,7 +220,7 @@
 | [#1795](https://github.com/openclaw/openclaw/pull/1795) | (unconfigured proxy bypass) | HIGH | MERGED | Fail-secure proxy detection in `isLocalDirectRequest()` at `src/gateway/auth.ts:101-122` |
 | [#2016](https://github.com/openclaw/openclaw/pull/2016) | [#2015](https://github.com/openclaw/openclaw/issues/2015) | HIGH | MERGED | `noteSecurityWarnings()` at `src/commands/doctor-security.ts:12` checks gateway bind + auth |
 | [#4880](https://github.com/openclaw/openclaw/pull/4880) | (LFI via MEDIA tokens) | HIGH | MERGED | `isValidMedia()` at `src/media/parse.ts:36-64` accepts all path types; LFI guard moved to `assertLocalMediaAllowed()` at `src/web/media.ts:47-89` |
-| [#8241](https://github.com/openclaw/openclaw/pull/8241) | (Matrix thread isolation) | MEDIUM | MERGED | `:thread:${threadRootId}` suffix at `extensions/matrix/src/matrix/monitor/handler.ts:446-447` |
+| [#8241](https://github.com/openclaw/openclaw/pull/8241) | (Matrix thread isolation) | MEDIUM | MERGED | `:thread:${threadRootId}` suffix at `extensions/matrix/src/matrix/monitor/handler.ts:450-451` |
 | [#8513](https://github.com/openclaw/openclaw/pull/8513) | [#8512](https://github.com/openclaw/openclaw/issues/8512) (CRITICAL) | CRITICAL | OPEN | Adds auth requirement for plugin HTTP routes in gateway |
 | [#9436](https://github.com/openclaw/openclaw/pull/9436) | [#9435](https://github.com/openclaw/openclaw/issues/9435) (HIGH), [#5120](https://github.com/openclaw/openclaw/issues/5120) (MEDIUM) | HIGH | MERGED | Query token acceptance removed from `extractHookToken()` in `src/gateway/hooks.ts`; server returns HTTP 400 when `?token=` present |
 | [#9518](https://github.com/openclaw/openclaw/pull/9518) | [#9517](https://github.com/openclaw/openclaw/issues/9517) (HIGH) | HIGH | MERGED | New `authorizeCanvasRequest()` at `src/gateway/server-http.ts:109-155` wraps canvas/A2UI endpoints |
@@ -265,7 +265,7 @@
 | [#13737](https://github.com/openclaw/openclaw/pull/13737) | (Docker privilege hardening) | LOW | OPEN | UID/GID remap in Dockerfile; Greptile flags GID collision not detected (silently reuses existing group) |
 | [#13290](https://github.com/openclaw/openclaw/pull/13290) | (openclaw/trust#1) | LOW | OPEN | Security warnings in TOOLS.md templates and system-prompt docs that workspace files enter model context |
 | [#15390](https://github.com/openclaw/openclaw/pull/15390) | (OC-02 RCE via HTTP gateway) | CRITICAL | MERGED | `DEFAULT_GATEWAY_HTTP_TOOL_DENY` at `tools-invoke-http.ts:43-52` blocks sessions_spawn + 3 others; merged 2026-02-13; ALREADY SYNCED |
-| [#15384](https://github.com/openclaw/openclaw/pull/15384) | (OC-01 shell injection) | CRITICAL | CLOSED | Closed 2026-02-13; #8186 still OPEN with same fix; local `docker.ts:377-378` still vulnerable |
+| [#15384](https://github.com/openclaw/openclaw/pull/15384) | (OC-01 shell injection) | CRITICAL | CLOSED | Closed 2026-02-13; #8186 still OPEN with same fix; local `docker.ts:387-388` still vulnerable |
 | [#15314](https://github.com/openclaw/openclaw/pull/15314) | [#15313](https://github.com/openclaw/openclaw/issues/15313) (HIGH) | HIGH | CLOSED | Closed 2026-02-13; #3926 still OPEN with same fix; local `DEFAULT_BROWSER_EVALUATE_ENABLED` still true |
 | [#13073](https://github.com/openclaw/openclaw/pull/13073) | [#10090](https://github.com/openclaw/openclaw/issues/10090) (HIGH) | HIGH | MERGED | Credential redaction completion; `zod-schema.sensitive.ts` and schema hint updates; merged 2026-02-13; SYNC NEEDED |
 | [#4026](https://github.com/openclaw/openclaw/pull/4026) | (symlink race) | HIGH | MERGED | `SandboxFsBridge` routes file ops through `docker exec`; merged 2026-02-13; SYNC NEEDED |
@@ -312,7 +312,7 @@
 **Closes:** (addresses unconfigured reverse proxy auth bypass)
 
 **Changes:**
-- `src/gateway/server/ws-connection/message-handler.ts:210-216` — detects untrusted proxy headers
+- `src/gateway/server/ws-connection/message-handler.ts:160-179` — detects untrusted proxy headers
 - `src/gateway/auth.ts:101-122` — `isLocalDirectRequest()` returns `false` when proxy headers present but `trustedProxies` not configured (fail-secure)
 - `src/security/audit.ts` — audit detection for misconfigured proxy setup
 
@@ -353,7 +353,7 @@
 **Changes:**
 - `extensions/matrix/src/matrix/monitor/handler.ts` — thread messages get `:thread:${threadRootId}` session key suffix
 
-**Local Impact:** ALREADY SYNCED — thread isolation at `extensions/matrix/src/matrix/monitor/handler.ts:446-447`
+**Local Impact:** ALREADY SYNCED — thread isolation at `extensions/matrix/src/matrix/monitor/handler.ts:450-451`
 
 ### #13182: Split Oversized Security Audit Files
 
@@ -490,7 +490,7 @@
 **Note:** This PR was closed without merge. The same vulnerability is still addressed by [#8186](https://github.com/openclaw/openclaw/pull/8186) which remains OPEN.
 
 **Local Validation:**
-- `src/agents/sandbox/docker.ts:377-378` — `cfg.setupCommand` passed directly to `["exec", "-i", name, "sh", "-lc", cfg.setupCommand]` with only `?.trim()` check
+- `src/agents/sandbox/docker.ts:387-388` — `cfg.setupCommand` passed directly to `["exec", "-i", name, "sh", "-lc", cfg.setupCommand]` with only `?.trim()` check
 - No `validateSetupCommand` function exists locally
 
 **Local Impact:** NOT AFFECTED (PR closed) — vulnerability remains; monitor #8186 for fix.
@@ -523,7 +523,7 @@
 - `src/agents/pi-embedded-runner/run/attempt.ts` — uses `Agent.transformContext` hook to run `sanitizeAntigravityThinkingBlocks` before every API call (not just at session load)
 
 **Local Validation:**
-- `src/agents/pi-embedded-runner/run/attempt.ts:993` — `sanitizeAntigravityThinkingBlocks` only at orphaned user-message repair (session load)
+- `src/agents/pi-embedded-runner/run/attempt.ts:1035` — `sanitizeAntigravityThinkingBlocks` only at orphaned user-message repair (session load)
 - No `transformContext` hook usage in local `pi-embedded-runner` (grep confirmed)
 - `src/agents/pi-embedded-runner/google.ts:72` — `sanitizeAntigravityThinkingBlocks` function exists but only called from `attempt.ts:993` and `google.ts:459`
 
@@ -902,12 +902,12 @@
 **Greptile Review:** 25 files reviewed, 2 comments. 1 inline comment on `src/gateway/net.ts:183` about bitwise left shift on negative values needing unsigned right shift for mask calculation.
 
 **Local Validation:**
-- `src/config/types.gateway.ts:79` — `GatewayAuthMode` includes `"trusted-proxy"`
-- `src/config/types.gateway.ts:86` — `GatewayTrustedProxyConfig` type with `userHeader`, `requiredHeaders`, `allowUsers`
+- `src/config/types.gateway.ts:83` — `GatewayAuthMode` includes `"trusted-proxy"`
+- `src/config/types.gateway.ts:90` — `GatewayTrustedProxyConfig` type with `userHeader`, `requiredHeaders`, `allowUsers`
 - `src/gateway/auth.ts:244` — `authorizeTrustedProxy()` function present
 - `src/gateway/auth.ts:300-315` — trusted-proxy auth path in `authorizeGatewayConnect()`
 - `src/security/audit.ts:377-436` — audit integration with critical findings for trusted-proxy
-- `src/config/zod-schema.ts:402` — Zod validation for trusted-proxy mode
+- `src/config/zod-schema.ts:435` — Zod validation for trusted-proxy mode
 - 10+ test files with trusted-proxy coverage
 
 **Local Impact:** ALREADY SYNCED — full trusted-proxy auth infrastructure present locally
@@ -935,8 +935,8 @@
 **Local Validation:**
 - `src/config/sessions/transcript.ts:75` — `writeFile(params.sessionFile, ..., "utf-8")` — no `mode: 0o600`
 - `src/agents/pi-embedded-helpers/bootstrap.ts:159` — `writeFile(file, ..., "utf-8")` — no `mode: 0o600`
-- `src/gateway/server-methods/chat.ts:285` — `writeFileSync(params.transcriptPath, ..., "utf-8")` — no `mode: 0o600`
-- `src/auto-reply/reply/session.ts:92` — `writeFileSync(sessionFile, ..., "utf-8")` — no `mode: 0o600`
+- `src/gateway/server-methods/chat.ts:306` — `writeFileSync(params.transcriptPath, ..., "utf-8")` — no `mode: 0o600`
+- `src/auto-reply/reply/session.ts:96` — `writeFileSync(sessionFile, ..., "utf-8")` — no `mode: 0o600`
 - `src/agents/pi-embedded-runner/session-manager-init.ts:46` — `writeFile(params.sessionFile, "", "utf-8")` — no `mode: 0o600`
 - `src/gateway/server-methods/sessions.ts:490` — `writeFileSync(filePath, ..., "utf-8")` — no `mode: 0o600`
 - `src/agents/session-file-repair.ts:77,81` — `writeFile(..., "utf-8")` — no `mode: 0o600`

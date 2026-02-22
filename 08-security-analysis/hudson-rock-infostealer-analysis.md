@@ -47,7 +47,7 @@
 
 | # | Article Claim | Verdict | Codebase Evidence |
 |---|---------------|---------|-------------------|
-| 1 | `openclaw.json` contains gateway token | **CONFIRMED** | `gateway.auth.token` field; stored as plaintext JSON5 with `0o600` perms (`src/config/io.ts:1004`) |
+| 1 | `openclaw.json` contains gateway token | **CONFIRMED** | `gateway.auth.token` field; stored as plaintext JSON5 with `0o600` perms (`src/config/io.ts:1097`) |
 | 2 | `openclaw.json` contains email address | **LIKELY** | `auth.profiles.*.email` optional string field exists (`src/config/types.auth.ts:10`); OAuth profiles commonly include email |
 | 3 | `openclaw.json` contains workspace path | **CONFIRMED** | `agents[].dir` field configures workspace directories |
 | 4 | `device.json` contains crypto keys | **CONFIRMED** | ED25519 private + public key pair, device ID (SHA256 fingerprint) (`src/infra/device-identity.ts:57-63`); stored at `~/.openclaw/identity/device.json` (`src/infra/device-identity.ts:20-21`) with `0o600` perms (`src/infra/device-identity.ts:84,116-118`) |
@@ -242,7 +242,7 @@ Hudson Rock predicts that **infostealer developers will likely release dedicated
 | Encryption at rest | OPEN | No encryption — credentials protected only by filesystem permissions | [Mac Mini risks](../05-worst-case-security/mac-mini-risks.md) |
 | Token rotation | OPEN | No expiry, no rotation mechanism — tokens are static until manually changed | — |
 | Token device-binding | OPEN | Gateway tokens are not bound to any device; any bearer can authenticate | — |
-| Auth rate limiting | MITIGATED | 10 failures / 60s → 5-minute lockout (`src/config/types.gateway.ts:124-133`) | [Threat model](../04-privacy-safety/threat-model.md) |
+| Auth rate limiting | MITIGATED | 10 failures / 60s → 5-minute lockout (`src/config/types.gateway.ts:128-137`) | [Threat model](../04-privacy-safety/threat-model.md) |
 | VirusTotal scanning | MITIGATED (partial) | 6-step pipeline; does not catch social engineering or lookalike website bypass | [ClawHub risks](../05-worst-case-security/clawhub-marketplace-risks.md) |
 | Local skill scanner | MITIGATED (partial) | Pattern-based; does not scan `.md`/`.mmd` files or external URLs | [ClawHub risks](../05-worst-case-security/clawhub-marketplace-risks.md) |
 | Endpoint protection | USER RESPONSIBILITY | No built-in AV/EDR; relies on user's OS-level security | This document |

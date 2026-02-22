@@ -37,7 +37,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | 11 | **Memory sync** — file hashing + markdown chunking + embedding + SQLite FTS5/vec indexing | `src/memory/manager.ts:327+` | Medium (periodic) | Like re-indexing a library catalog — scanning, categorizing, and filing every document |
 | 12 | **TTS generation** — ElevenLabs/OpenAI/Edge TTS API calls + audio buffer handling | `src/tts/tts.ts:522-691` | Medium | API calls are remote but audio buffer conversion is local CPU work |
 | 13 | **Agent execution loop** — continuous model response processing | `src/auto-reply/reply/agent-runner-execution.ts:67` | Medium (continuous) | The main "brain" loop — always running while the bot is responding |
-| 14 | **Cron timer loop** — infinite loop for scheduled job processing | `src/cron/service/timer.ts:308` | Low (idle) | Like a clock ticking in the background — minimal CPU unless jobs are firing |
+| 14 | **Cron timer loop** — re-arming `setTimeout` for scheduled job processing | `src/cron/service/timer.ts:156` | Low (idle) | Like a clock ticking in the background — minimal CPU unless jobs are firing |
 
 ### Other CPU consumers
 
@@ -55,7 +55,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 
 **Child process stdout/stderr accumulation:**
 - `src/process/exec.ts:133-162` — unbounded string concatenation of process output
-- `src/memory/qmd-manager.ts:826-831` — QMD output now **capped** at 200,000 characters via `appendOutputWithCap()` (`:1398`), configured by `MAX_QMD_OUTPUT_CHARS` (`:35`). Process is killed with descriptive error when cap is exceeded. Note: `src/process/exec.ts:133-162` remains unbounded.
+- `src/memory/qmd-manager.ts:924-929` — QMD output now **capped** at 200,000 characters via `appendOutputWithCap()` (`:1677`), configured by `MAX_QMD_OUTPUT_CHARS` (`:35`). Process is killed with descriptive error when cap is exceeded. Note: `src/process/exec.ts:133-162` remains unbounded.
 
 **Media fetch buffering:**
 - `src/media/fetch.ts:131-140` — media fetch is now **bounded** when `maxBytes` is specified: `readResponseWithLimit()` (`src/media/read-response-with-limit.ts`) streams chunk-by-chunk and aborts early on overflow, preventing unbounded memory consumption. Falls back to unbounded `arrayBuffer()` only when no limit is specified (e.g., document fetches without size constraints).
@@ -83,7 +83,7 @@ Users report OpenClaw can be resource-intensive. This guide documents every reso
 | WhatsApp group histories | `src/web/auto-reply/monitor.ts:103` | Helper has 1000-key cap, but web direct writes bypass it | **Partial leak** |
 | WhatsApp group member names | `src/web/auto-reply/monitor.ts:113` | **No eviction at all** | **Leak risk** |
 | Cost usage cache | `src/gateway/server-methods/usage.ts:41` | 30s TTL per entry, **no max entry count** | Low-Medium |
-| Warned contexts | `src/infra/session-maintenance-warning.ts:14` | **Never pruned** | Low |
+| Warned contexts | `src/infra/session-maintenance-warning.ts:16` | **Never pruned** | Low |
 | Announce queues | `src/agents/subagent-announce-queue.ts:45` | Per-queue cap, **no queue count cap** | Low |
 | Telegram sent msgs outer map | `src/telegram/sent-message-cache.ts:13` | Per-chat TTL, **outer map never evicts dead chat keys** | Low-Medium |
 
@@ -125,11 +125,11 @@ Modules loaded via jiti persist for process lifetime. Each plugin's tools, comma
 | Resource | Location | Risk |
 |----------|----------|------|
 | Transcript `.jsonl` files | `src/config/sessions/transcript.ts:60-151` | **No rotation, no size limit** — grows forever per session |
-| Command logger | `src/hooks/bundled/command-logger/handler.ts:42-58` | **No rotation** — `commands.log` grows unbounded |
+| Command logger | `src/hooks/bundled/command-logger/handler.ts:49-62` | **No rotation** — `commands.log` grows unbounded |
 | Telegram sticker cache | `src/telegram/sticker-cache.ts:35-67` | **No eviction** — JSON grows with unique stickers |
 | Browser user-data profiles | `src/browser/chrome.ts:62-64` | Full Chromium profile — can reach GBs |
 | SQLite databases | `src/memory/manager.ts:161` | **No VACUUM** — WAL files can bloat |
-| Per-day log file size | `src/logging/logger.ts:103-111` | No cap on individual file size |
+| Per-day log file size | `src/logging/logger.ts:105-113` | No cap on individual file size |
 | Voice-call `calls.jsonl` | `extensions/voice-call/src/manager/store.ts:7-10` | **Append-only, no rotation** + full-file reads on load |
 
 > *Transcript JSONL files:* Like a chat log that records every message forever but never archives or deletes old conversations — a busy bot can accumulate gigabytes over months.
@@ -143,7 +143,7 @@ Modules loaded via jiti persist for process lifetime. Each plugin's tools, comma
 | Resource | Limit | Location |
 |----------|-------|----------|
 | Media files | 2min TTL auto-cleanup | `src/media/store.ts:16,94-130` |
-| Rolling logs | 24h age pruning | `src/logging/logger.ts:17,228-252` |
+| Rolling logs | 24h age pruning | `src/logging/logger.ts:17,230-254` |
 | Session store | 500 entries, 30d prune, 10MB rotation, 3 backups | `src/config/sessions/store.ts:768` |
 | Cron run logs | 2MB/2000 lines self-pruning | `src/cron/run-log.ts:26-57` |
 | TTS temp files | 5min delayed cleanup | `src/tts/tts-core.ts:21,500-512` |
@@ -634,9 +634,9 @@ Source references: defaults at `src/agents/memory-search.ts:76-77`
 | **Voyage** | `voyage-4-large` | 32,000 | 1,024 | Cloud API |
 | **Local** | `embeddinggemma-300M` (GGUF) | varies | ~300 | On-device via `node-llama-cpp` |
 
-Source: model defaults at `src/agents/memory-search.ts:73-75`, local model at `src/memory/embeddings.ts:65-66`
+Source: model defaults at `src/agents/memory-search.ts:73-75`, local model at `src/memory/embeddings.ts:66-67`
 
-**Auto-selection order** (`src/memory/embeddings.ts:137-170`):
+**Auto-selection order** (`src/memory/embeddings.ts:138-202`):
 
 1. **Local** — but only if the model file already exists on disk (won't auto-download)
 2. **OpenAI** — if API key is available
