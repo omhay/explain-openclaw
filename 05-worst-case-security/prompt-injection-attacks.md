@@ -956,8 +956,8 @@ Alice
 
 **OpenClaw's Defense:**
 OpenClaw wraps external hook content (including emails) with security boundaries:
-- `buildSafeExternalPrompt()` at `src/cron/isolated-agent/run.ts:394-405`
-- Suspicious pattern detection and logging at `src/cron/isolated-agent/run.ts:383-391`
+- `buildSafeExternalPrompt()` at `src/cron/isolated-agent/run.ts:334-340`
+- Suspicious pattern detection and logging at `src/cron/isolated-agent/run.ts:322-328`
 - External content wrapped with `<<<EXTERNAL_UNTRUSTED_CONTENT>>>` markers and security warnings (`src/security/external-content.ts:47-64`)
 
 **Additional Defense:**
@@ -1096,7 +1096,7 @@ The gateway tool's `config.patch` action uses a **separate control plane** from 
 
 So this still works even when `/config set` is disabled (`commands.config: false` + `configWrites: false`) if the gateway tool remains available to that owner session.
 
-**Source:** `src/agents/tools/gateway-tool.ts:72,188-199`, `src/agents/tools/gateway.ts:147`, `src/gateway/server-methods.ts:35-62,102-127`, `src/auto-reply/reply/commands-config.ts:39,54-72`
+**Source:** `src/agents/tools/gateway-tool.ts:72,188-199`, `src/agents/tools/gateway.ts:147`, `src/gateway/server-methods.ts:37-64,102-127`, `src/auto-reply/reply/commands-config.ts:39,54-72`
 
 **Defense:**
 
