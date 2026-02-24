@@ -158,6 +158,12 @@
 - [Feb 24 sync 5 (11 commits, 3 security)](./post-merge-hardening/2026-02-24-sync-5.md)
 - [Feb 24 sync 6 (16 commits, 0 security)](./post-merge-hardening/2026-02-24-sync-6.md)
 - [Feb 24 sync 7 (18 commits, 5 security)](./post-merge-hardening/2026-02-24-sync-7.md)
+- [Feb 24 sync 8 (26 commits, 12 security)](./post-merge-hardening/2026-02-24-sync-8.md)
+- [Feb 24 sync 9 (40 commits, 16 security)](./post-merge-hardening/2026-02-24-sync-9.md)
+- [Feb 24 sync 10 (80 commits, 9 security)](./post-merge-hardening/2026-02-24-sync-10.md)
+- [Feb 25 sync 1 (50 commits, 3 security)](./post-merge-hardening/2026-02-25-sync-1.md)
+- [Feb 25 sync 2 (50 commits, 13 security)](./post-merge-hardening/2026-02-25-sync-2.md)
+- [Feb 25 sync 3 (36 commits, 2 security)](./post-merge-hardening/2026-02-25-sync-3.md)
 
 ## Post-Merge Security Hardening
 
