@@ -1,0 +1,84 @@
+@startuml OpenClaw Architecture
+!define AWSPUML https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v14.0/dist
+!include AWSPUML/AWSCommon.puml
+
+skinparam backgroundColor #FEFEFE
+skinparam handwritten false
+skinparam packageStyle rectangle
+skinparam classBackgroundColor #F0F0F0
+
+title OpenClaw Architecture - Message Lifecycle
+
+package "Messaging Platforms" {
+  [WhatsApp]
+  [Telegram]
+  [Discord]
+  [iMessage]
+}
+
+package "Gateway (Control Plane)" {
+  [Channel Ingress/Egress]
+  [Input Sanitization]
+  [Routing & Policy Checks]
+  [Session Management]
+  [Agent Turn Executor]
+  [Tool Call Manager]
+  
+  package "WebSocket RPC" {
+    [Control Plane]
+    [Dashboard UI]
+  }
+  
+  package "HTTP Endpoints" {
+    [/v1/chat/completions]
+    [/v1/responses]
+    [/v1/tools/invoke]
+  }
+}
+
+package "Core Modules" {
+  [CLI - src/entry.ts]
+  [Channels - src/channels/]
+  [Auto-Reply - src/auto-reply/]
+  [Config Schema - src/config/]
+  [Daemon - src/daemon/]
+  [Memory - src/memory/]
+  [Plugins - src/plugins/]
+  [Security - src/security/]
+}
+
+package "AI Providers" {
+  [Anthropic]
+  [OpenAI]
+  [Local Model Endpoint]
+}
+
+package "State Storage" {
+  [Config - ~/.openclaw/openclaw.json]
+  [Auth Profiles - agents/<id>/auth-profiles.json]
+  [Transcripts - agents/<id>/sessions/*.jsonl]
+}
+
+"Messaging Platforms" --> "Channel Ingress/Egress": Events
+"Channel Ingress/Egress" --> "Input Sanitization": Raw Messages
+"Input Sanitization" --> "Routing & Policy Checks": Clean Messages
+"Routing & Policy Checks" --> "Session Management": Route Decision
+"Session Management" --> "Agent Turn Executor": Load Context
+"Agent Turn Executor" --> "AI Providers": Model Call
+"AI Providers" --> "Tool Call Manager": Tool Requests
+"Tool Call Manager" --> "Agent Turn Executor": Tool Results
+"Agent Turn Executor" --> "Channel Ingress/Egress": Format Response
+"Channel Ingress/Egress" --> "Messaging Platforms": Send Reply
+
+"Control Plane" -.-> "CLI - src/entry.ts": Commands
+"Control Plane" -.-> "Channels - src/channels/": Channel Ops
+"Control Plane" -.-> "Config Schema - src/config/": Config Mgmt
+"Control Plane" -.-> "Daemon - src/daemon/": Service Mgmt
+
+"Agent Turn Executor" -.-> "Auto-Reply - src/auto-reply/": Reply Pipeline
+"Agent Turn Executor" -.-> "Memory - src/memory/": Knowledge Layer
+
+"Config Schema" --> "State Storage": Persist Config
+"Session Management" --> "State Storage": Persist Sessions
+
+@enduml
